@@ -1,0 +1,7 @@
+django
+appengine_django
+.google_appengine
+.svn
+.project
+.pydevproject
+*.pyc
