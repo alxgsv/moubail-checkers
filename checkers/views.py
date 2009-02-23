@@ -19,6 +19,7 @@ def new_game(request):
         player = Player(imei = request.GET['imei'])
     player.game_requested = datetime.now()
     player.put()
+    # Because there cant be two inequals in one query
     opponents = Player.gql("WHERE game_requested > :1 ", datetime.now() - timedelta(0, 45)).fetch(2)
     opponents = filter(lambda x: x.imei != request.GET['imei'], opponents)
     if opponents:
@@ -41,5 +42,7 @@ def action(request):
     game = player.game()
     if not game:
         return HttpResponseRedirect("/api/newgame/?imei=%s"%request.GET['imei'])
-    game.setup(player)      
+    game.setup(player)
+    if request.GET.has_key('queue'):
+        game.apply_turn_queue(request.GET['queue'])
     return HttpResponse(sj.dumps(game.to_response()))

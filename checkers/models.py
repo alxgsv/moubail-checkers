@@ -82,6 +82,11 @@ class Board:
         elif  player.key() == self.player2.key(): number = 2
         return number
     
+    def move(self, fr, to):
+        checker = self.checkers[fr[0]][fr[1]]
+        self.checkers[fr[0]][fr[1]] = None
+        self.checkers[to[0]][to[1]] = checker
+
     def __call__(self, x, y):
         return self.checkers[x][y]
     
@@ -120,8 +125,15 @@ class CheckersGame(db.Model, Game):
         self.state = sj.dumps({'board' : dump})
 
     def unpack(self):
-        self.board = Board(self.player1, self.player2, sj.loads(self.state)["board"])
+        self.board = Board(self.player1, self.player2, sj.loads(self.state)["board"])    
     
+    def apply_turn_queue(self, turnqueue):
+        while turnqueue:
+            turn = turnqueue[:4]
+            turnqueue = turnqueue[4:]
+            self.board.move(self.player_coords(turn[:2]), self.player_coords(turn[2:]))
+        self.pack()
+
     def to_response(self):
         response_board = self.board.dump_to_list()
         if self.for_player2(): 
@@ -137,6 +149,6 @@ class CheckersGame(db.Model, Game):
                     response_board[x][y] = "1%s"%response_board[x][y][1][0]
                 else:
                     response_board[x][y] = "2%s"%response_board[x][y][1][0]
-        return {'board': response_board}
+        return {'board': response_board, 'your_turn': True, 'status':'onair'}
         
     

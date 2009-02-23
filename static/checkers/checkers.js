@@ -44,7 +44,7 @@ function update_board_from_response(response_board){
                 $('#p'+y+x).attr('src', user_or_opponent+normal_or_king+'.png');
 			}
 			else{
-				$('#p'+y+x).attr('src', 'f.png').attr('onclick', "");
+				$('#p'+y+x).attr('src', 'f.png');
 			}
   	}
   }
@@ -144,7 +144,7 @@ function stuck() {
 }
 
 function pos(y, x) {
-  if (tossed) {
+  if (tossed) {    
     if (computer_go) { //document.info.disp.value="Wait! It's my turn.";
       disp.innerHTML = "Wait! It's my turn.";
     }
@@ -186,6 +186,7 @@ function first(n) {
 }
 
 function second(n) {
+  alert('second');
   b = n;
   if (a == b) {
 		// selected player, selecting again - deselectiongh
