@@ -1,0 +1,205 @@
+
+* {
+   	padding: 0;
+   	margin: 0;
+   	border: 0; 
+}
+
+body {
+	background:#331C0E;
+	padding:0;
+	margin:0;
+	font-family:sans-serif;	
+}
+a {
+	color:#fff;
+}
+h1 {
+	font-size:18px;
+	padding:0 0 0.5em 0;
+}
+p {
+	padding:0 0 1em 0;
+}
+a img {
+	border:none;
+}
+
+#body-wrap.portrait {
+	position:relative;
+	background:#331C0E url(bg-page.png) no-repeat fixed;
+	width:360px;
+	height:640px;
+}
+
+#body-wrap.horizontal {
+	position:relative;
+	background:#331C0E url(bg-page-hr.png) no-repeat fixed;
+	width:640px;
+	height:360px;
+}
+
+#header {
+	background:url(bg-header.png) no-repeat top center;
+}
+.portrait #header {
+	position:absolute;
+	left:0;
+	top:0;
+	height:80px;
+	width:336px;
+}
+.horizontal #header {
+	position:absolute;
+	right:10px;
+	top:80px;
+	height:80px;
+	width:260px;
+}
+#game-wrap {
+	padding:12px;
+	margin:0;
+	width:336px;
+	height:336px;
+	background:url(bg-board.png) no-repeat;
+}
+.portrait #game-wrap {
+	position:absolute;
+	left:0;
+	top:80px;
+}
+.horizontal #game-wrap {
+	position:absolute;
+	left:10px;
+	top:0;
+}
+
+#game-table {
+	padding:0;
+	margin:0;
+	width:336px;
+	height:336px;
+}
+.game-row {
+	width:100%;
+}
+.game-row .check {
+	float:left;
+}
+#game-table a img {
+	border:none;
+	padding:0;
+	margin:0;
+}
+
+
+#game-info {
+	text-align:center;
+}
+.portrait #game-info {
+	position:absolute;
+	left:0;
+	top:450px;
+	width:360px;
+}
+.horizontal #game-info {
+	position:absolute;
+	right:10px;
+	top:200px;
+	width:260px;
+}
+
+#button-info {
+	position:absolute;
+}
+#button-exit {
+	position:absolute;
+}
+.portrait #button-info {
+	left:10px;
+	bottom:10px;
+}
+.portrait #button-exit {
+	right:10px;
+	bottom:10px;
+}
+.horizontal #button-info {
+	right:10px;
+	bottom:10px;
+}
+.horizontal #button-exit {
+	right:10px;
+	top:10px;
+}
+
+.box {
+	height:50px;
+	padding:0 10px 0 10px;
+	font-size:14px;
+	font-weight:bold;
+	text-align:center;
+	letter-spacing:1px;
+	background:transparent;
+	color:#fff;
+}
+.game-info-button {
+	width:100%;
+	text-align:center;
+}
+.button {
+	width:160px;
+	padding:10px 0 10px 0;
+	border:3px solid #000;
+	border-left:3px solid #333;
+	border-top:3px solid #333;
+	font-size:14px;
+	font-weight:bold;
+	background:#222;
+	color:#fff;
+	letter-spacing:1px;
+}
+
+
+
+#info {
+	background:#331C0E;
+	color:#fff;
+	position:absolute;
+	left:0;
+	top:0;
+	z-index:1000;
+	font-size:12px;
+	line-height:142%;
+}
+.info-padding {
+	padding:30px;
+}
+.portrait #info {
+	width:360px;
+	height:640px;	
+}
+.horizontal #info {
+	width:640px;
+	height:360px;	
+}
+#info .close {
+	position:absolute;
+	top:10px;
+	right:10px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

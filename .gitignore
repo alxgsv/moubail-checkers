@@ -5,3 +5,5 @@ appengine_django
 .project
 .pydevproject
 *.pyc
+.*
+*~

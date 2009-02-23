@@ -16,7 +16,9 @@ from django.conf.urls.defaults import *
 
 urlpatterns = patterns('',
     # Example:
-    # (r'^foo/', include('foo.urls')),
+    # (r'^api/', include('checkers.urls')),
+    (r'^api/action/', 'checkers.views.action'),
+    (r'^api/newgame/', 'checkers.views.new_game'),
 
     # Uncomment this for admin:
 #     (r'^admin/', include('django.contrib.admin.urls')),
