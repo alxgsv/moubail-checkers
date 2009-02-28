@@ -24,6 +24,9 @@ class Checker:
         
     def is_king(self):
         return self.ctype == "King"
+        
+    def make_king(self):
+        self.ctype = "King"
     
     def dump_to_list(self):
         return [self.player.key(), self.ctype]
@@ -44,7 +47,7 @@ class Board:
     Coordinates:
         - left upper:   [0][0]
         - right upper:  [7][0]
-        - left bottom:  [0][0]
+        - left bottom:  [0][7]
         - right bottom: [7][7]
      
     Acessing cells by self.checkers[2][1]
@@ -116,13 +119,27 @@ class Board:
         if player.key() == self.player1.key(): number = 1
         elif  player.key() == self.player2.key(): number = 2
         return number
+        
+    def update_checker_kingity(self, coords):
+        checker = self.checkers[coords[0]][coords[1]]
+        if (coords[1] == (len(self.checkers[0]) - 1) and checker.player.key() == self.player1.key()) or \
+           (coords[1] == 0 and checker.player.key() == self.player2.key()):
+           checker.make_king()
+        
     
     def move(self, fr, to):
         checker = self.checkers[fr[0]][fr[1]]
-        logging.warn("Moving %s from %s to %s"%(checker, fr, to))
-        self.checkers[fr[0]][fr[1]] = None
-        self.checkers[to[0]][to[1]] = checker
-
+        moves = self.possible_moves_for_checker(fr)
+        for move in moves:
+            if to == move[:2]:
+                logging.warn("Moving %s from %s to %s"%(checker, fr, to))
+                if move[2]:
+                    eaten = move[2]
+                    self.checkers[eaten[0]][eaten[1]] = None 
+                self.checkers[fr[0]][fr[1]] = None
+                self.checkers[to[0]][to[1]] = checker
+                self.update_checker_kingity(to)
+                
     def possible_moves_for_player(self, player):
         moves = []
         
