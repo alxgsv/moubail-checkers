@@ -1,4 +1,4 @@
-import copy, pprint, random, logging
+import copy, pprint, random, logging, pprint
 from datetime import datetime
 
 from appengine_django.models import BaseModel
@@ -18,15 +18,15 @@ class Player(db.Expando):
 
 
 class Checker:
-    def __init__(self, player, type="Normal"):
+    def __init__(self, player, ctype="Normal"):
         self.player = player
-        self.type = type
+        self.ctype = ctype
         
     def is_king(self):
-        return self.type == "King"
+        return self.ctype == "King"
     
     def dump_to_list(self):
-        return [self.player.key(), self.type]
+        return [self.player.key(), self.ctype]
 
 class Board:
     """ 
@@ -51,6 +51,9 @@ class Board:
     """
     
     empty = [[None for i in range(8)] for i in range(8)]
+    PLAYER1_MOVES = [[+1, +1], [-1, +1]]
+    PLAYER2_MOVES = [[+1, -1], [-1, -1]]
+    KING_MOVES = PLAYER1_MOVES + PLAYER2_MOVES 
     def __init__(self, player1, player2, board_list=[],):
         self.player1 = player1
         self.player2 = player2
@@ -63,14 +66,27 @@ class Board:
                 for player in [player1, player2]:
                     if board_list[x][y] and player.key().__str__() == board_list[x][y][0]:
                         self.checkers[x][y] = Checker(player, board_list[x][y][1])
+
+    def reinit_from_test_board(self, t_board):
+        t_board = [[s for s in line] for line in t_board]
+        for x in range(len(t_board)):
+            for y in range(len(t_board[x])):
+                cell = t_board[x][y]
+                if cell == " ":
+                    self.checkers[y][x] = None
+                else:
+                    if cell in ['F', 'S']: ctype = "King"
+                    else: ctype = "Normal"
+                    if cell in ['f', 'F']: player = self.player1
+                    else: player = self.player2
+                    self.checkers[y][x] = Checker(player, ctype)
                         
-        
     def dump_to_list(self):
         dump = copy.deepcopy(self.checkers)
         for x in range(len(dump)):
             for y in range(len(dump[x])):
                 try:
-                    dump[x][y] = [dump[x][y].player.key().__str__(), dump[x][y].type] 
+                    dump[x][y] = [dump[x][y].player.key().__str__(), dump[x][y].ctype] 
                 except AttributeError:
                     pass
         return dump                
@@ -89,7 +105,6 @@ class Board:
         print
         for y in range(len(self.checkers[0])):
             for x in range(len(self.checkers)):
-                #print "[%s%s]"%(x,y),
                 if self.checkers[x][y] == None:
                     print " ",
                 else:
@@ -108,8 +123,58 @@ class Board:
         self.checkers[fr[0]][fr[1]] = None
         self.checkers[to[0]][to[1]] = checker
 
-    def possible_moves_for(player):
+    def possible_moves_for_player(self, player):
+        moves = []
         
+    def cell(self, coords):
+        return 0 <= coords[0] < len(self.checkers) and \
+               0 <= coords[1] < len(self.checkers[0]) and \
+               self.checkers[coords[0]][coords[1]]
+        
+    def possible_moves_for_checker(self, coords):
+        checker = self.checkers[coords[0]][coords[1]]
+        if not checker: return None
+        moves = []
+        owner = checker.player
+        ctype = checker.ctype
+        
+        # Getting standard moves for this checker
+        # Standart move is diagonal move without eating an opponent checker
+        if ctype == "King": standard_moves = Board.KING_MOVES
+        elif owner.key() == self.player1.key(): standard_moves = Board.PLAYER1_MOVES
+        elif owner.key() == self.player2.key(): standard_moves = Board.PLAYER2_MOVES
+        
+        
+        for s_move in standard_moves:
+            new_coords = map(lambda x,y: x + y, coords, s_move)
+            
+            new_cell = self.cell(new_coords)
+
+            if new_cell == False: continue
+            
+            # If peaceful move is acceptable - adding it to possible moves
+            if new_cell == None: 
+                moves.append(new_coords + [None])
+                continue   
+            
+            # In other case we've got a preventer
+            preventer = new_cell
+            
+            # If its a turner's cheker - calm down
+            if preventer.player.key() == owner.key(): continue
+
+            eating_coords = map(lambda x,y: x + y, new_coords, s_move) 
+            
+            new_cell = self.cell(eating_coords)
+            
+            if new_cell == False: continue
+            if new_cell == None: moves.append(eating_coords + [new_coords])
+
+        return moves
+                
+            
+                
+            
 
     def __call__(self, x, y):
         return self.checkers[x][y]
