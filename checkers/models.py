@@ -31,16 +31,16 @@ class Checker:
 class Board:
     """ 
     8x8 checkers board. Player1 it on top, Player2 on the bottom.
-
-    1   1   1   1  
-      1       1   1
-    1   1   1   1  
-                   
-                   
-      2   2   2   2
-    2   2   2   2  
-      2   2   2   2
-
+    +---------------+
+    |1   1   1   1  |
+    |  1       1   1|
+    |1   1   1   1  |
+    |               |
+    |               |
+    |  2   2   2   2|
+    |2   2   2   2  |
+    |  2   2   2   2|
+    +---------------+
     Coordinates:
         - left upper:   [0][0]
         - right upper:  [7][0]
