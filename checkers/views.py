@@ -1,4 +1,4 @@
-import sys
+import sys, logging
 from datetime import datetime, timedelta
 
 from django.template.loader import render_to_string
@@ -45,4 +45,5 @@ def action(request):
     game.setup(player)
     if request.GET.has_key('queue'):
         game.apply_turn_queue(request.GET['queue'])
+    game.save()
     return HttpResponse(sj.dumps(game.to_response()))

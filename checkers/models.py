@@ -1,4 +1,5 @@
-import copy, pprint
+import copy, pprint, random, logging
+from datetime import datetime
 
 from appengine_django.models import BaseModel
 from google.appengine.ext import db
@@ -28,8 +29,27 @@ class Checker:
         return [self.player.key(), self.type]
 
 class Board:
-    """ 8x8 checkers board """
-    # def move(self, from_coords, to_coords):
+    """ 
+    8x8 checkers board. Player1 it on top, Player2 on the bottom.
+
+    1   1   1   1  
+      1       1   1
+    1   1   1   1  
+                   
+                   
+      2   2   2   2
+    2   2   2   2  
+      2   2   2   2
+
+    Coordinates:
+        - left upper:   [0][0]
+        - right upper:  [7][0]
+        - left bottom:  [0][0]
+        - right bottom: [7][7]
+     
+    Acessing cells by self.checkers[2][1]
+    """
+    
     empty = [[None for i in range(8)] for i in range(8)]
     def __init__(self, player1, player2, board_list=[],):
         self.player1 = player1
@@ -84,8 +104,12 @@ class Board:
     
     def move(self, fr, to):
         checker = self.checkers[fr[0]][fr[1]]
+        logging.warn("Moving %s from %s to %s"%(checker, fr, to))
         self.checkers[fr[0]][fr[1]] = None
         self.checkers[to[0]][to[1]] = checker
+
+    def possible_moves_for(player):
+        
 
     def __call__(self, x, y):
         return self.checkers[x][y]
@@ -97,42 +121,62 @@ class CheckersGame(db.Model, Game):
     player1 = db.ReferenceProperty(Player, collection_name="checkersgames1")
     player2 = db.ReferenceProperty(Player, collection_name="checkersgames2")
     state = db.TextProperty()
+    turner = db.ReferenceProperty(Player, collection_name="checkersgames_turner")
     
     created_at = db.DateTimeProperty(auto_now_add=True)
-    last_turn_at = db.DateTimeProperty(auto_now=True)
-    timeout = db.IntegerProperty()    
+    last_update_at = db.DateTimeProperty(auto_now=True)
+    last_turn_at = db.DateTimeProperty()
+    timeout = db.IntegerProperty()
     
     def for_player1(self):
         return self.requester and self.requester.key() == self.player1.key()
     
     def for_player2(self):
         return self.requester and self.requester.key() == self.player2.key()
+    
+    def requester_is_turner(self):
+        logging.info("requester is turner " + str(self.requester.key() == self.turner.key()))
+        return self.requester.key() == self.turner.key()
 
+    def change_turner(self):
+        if self.turner.key() == self.player1.key():
+            self.turner = self.player2
+        else:
+            self.turner = self.player1
     
     def player_coords(self, xy):
-        if self.for_player1(): return [int(xy[0]), int(xy[1])]
-        elif self.for_player2(): return [7-int(xy[0]), 7-int(xy[1])]
+        if self.for_player1(): return [int(xy[1]), int(xy[0])]
+        elif self.for_player2(): return [7-int(xy[1]), 7-int(xy[0])]
     
     def setup(self, player=None):
         if self.state:
             self.unpack()
         else:
             self.board = Board(self.player1, self.player2)
+            self.turner = random.choice([self.player1, self.player2])
         self.requester = player
     
     def pack(self):
         dump = self.board.dump_to_list()   
         self.state = sj.dumps({'board' : dump})
-
+    
+    def save(self):
+        self.pack()
+        self.put()
+    
     def unpack(self):
         self.board = Board(self.player1, self.player2, sj.loads(self.state)["board"])    
     
     def apply_turn_queue(self, turnqueue):
+        logging.info("get queue %s"%turnqueue)
+        if not self.requester_is_turner(): return False            
+        logging.info("this queue is accepable")
         while turnqueue:
             turn = turnqueue[:4]
             turnqueue = turnqueue[4:]
-            self.board.move(self.player_coords(turn[:2]), self.player_coords(turn[2:]))
-        self.pack()
+            self.board.move(self.player_coords(turn[2:]), self.player_coords(turn[:2]))
+        self.last_turn_at = datetime.now()
+        self.change_turner()
 
     def to_response(self):
         response_board = self.board.dump_to_list()
@@ -149,6 +193,6 @@ class CheckersGame(db.Model, Game):
                     response_board[x][y] = "1%s"%response_board[x][y][1][0]
                 else:
                     response_board[x][y] = "2%s"%response_board[x][y][1][0]
-        return {'board': response_board, 'your_turn': True, 'status':'onair'}
+        return {'board': response_board, 'your_turn': self.requester_is_turner(), 'status':'onair'}
         
     

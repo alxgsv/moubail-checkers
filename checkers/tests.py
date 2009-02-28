@@ -23,8 +23,7 @@ class CheckersGameTestCase(unittest.TestCase):
         self.assertEquals(board(2,7), None)
         self.assertEquals(board(7,7).player.key(), self.player2.key())
     
-    def testPackingUnpacking(self):
-       
+    def testPackingUnpacking(self):       
         self.game.pack()
         self.game.put()
         state = copy.copy(self.game.state)
@@ -32,6 +31,6 @@ class CheckersGameTestCase(unittest.TestCase):
         self.assertEquals(state, self.game.state)        
 
     def testCoordsTransformation(self):
-        self.assertEquals(self.game.player_coords("00"), [0,0])
+        self.assertEquals(self.game.player_coords("10"), [0,1])
         self.game.setup(self.player2)
-        self.assertEquals(self.game.player_coords("00"), [7,7])
+        self.assertEquals(self.game.player_coords("10"), [7,6])

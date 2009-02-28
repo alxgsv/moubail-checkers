@@ -29,7 +29,7 @@ function query_to_param(){
 function send_queue(){
 	$.getJSON(get_url('action'), {imei:IMEI, queue:query_to_param()}, function(data){
 		TURN_QUEUE = [];
-		update_board_from_response(data.board);
+		process_server_response(data);
 	});
 	console.log("sent");
 }
@@ -50,6 +50,12 @@ function update_board_from_response(response_board){
   }
 }
 
+function touch_server(){
+   $.getJSON(get_url('action'), {imei:IMEI}, function(data){
+        process_server_response(data);
+	}); 
+}
+
 function toss_online() {
   if (tossed) {
     document.info.bttn.value = "Who goes first?";
@@ -67,9 +73,19 @@ function toss_online() {
 function process_server_response(response){
    if (response.status == "onair"){
   		update_board_from_response(response.board);
-        tossed = response.your_turn;            
+        tossed = response.your_turn;       
+        if(response.your_turn){
+           disp.innerHTML = "Your turn";
+           moved = false;
+        }else{
+           moved = true;
+           disp.innerHTML = "Waiting for the opponent turn";
+           setTimeout('touch_server()', 5000);
+        }     
    }else if(response.status == "waiting"){
-        setTimeout('toss_online()', 5000);
+        moved = true;
+        disp.innerHTML = "Searching for the opponent";
+        setTimeout('touch_server()', 5000);
    } 
 }
 
@@ -99,10 +115,12 @@ function player_reset() {
   wait = false; //document.info.disp.value=(cntr2 < 0 )?"Game over! You win.":"My turn.";
   if (ONLINE_GAME) {
   	send_queue();
-  }
+    
+  }else{ 
   disp.innerHTML = (cntr2 < 0) ? "Game over!<br \/>You win.": "My turn.";
   eval(dum);
   setTimeout('computer()', 1000);
+  }
 }
 
 function player_stuck(p_m) {
@@ -165,7 +183,7 @@ function pos(y, x) {
       }
 			
     }
-    player_go = false;
+    if(!ONLINE_GAME){player_go = false;}
   }
 }
 function first(n) {
@@ -186,7 +204,6 @@ function first(n) {
 }
 
 function second(n) {
-  alert('second');
   b = n;
   if (a == b) {
 		// selected player, selecting again - deselectiongh
@@ -282,7 +299,7 @@ function user_check(player_from, player_to) {
     } else { //document.info.disp.value="Jump again or click piece to stay.";
       disp.innerHTML = "Jump again or click the piece to stay.";
       first(curr_piece);
-			TURN_QUEUE.push([player_from, player_to]);
+      TURN_QUEUE.push([player_from, player_to]);
       wait = true;
       return false;
     }		
@@ -294,7 +311,7 @@ function user_check(player_from, player_to) {
   if (id(player_to) == "f") {
     if (ty == 7 && !isking(player_from)) draw(player_from, "uk.png");
     draw(player_to, "u" + (isking(player_from) ? "k": "") + "h.png");
-		TURN_QUEUE.push([player_from, player_to]);
+    TURN_QUEUE.push([player_from, player_to]);
     dh = player_to;
     setTimeout('draw(dh,"u"+(isking(dh)?"k":"")+".png")', 500);
     draw(player_from, "f.png");
