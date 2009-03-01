@@ -160,10 +160,11 @@ class Board:
                 if not checker or checker.player.key() != player.key(): continue
                 
                 moves += self.possible_moves_for_checker([x,y])
-        eaten_moves = filter(lambda x: x[2] != None, moves)
         
-        if len(eaten_moves) > 0:
-            return eaten_moves
+        # Disabled to sync with js version
+        #eaten_moves = filter(lambda x: x[2] != None, moves)
+        #if len(eaten_moves) > 0:
+        #    return eaten_moves
         
         return moves      
                 
@@ -259,7 +260,7 @@ class CheckersGame(db.Model):
         
         if not self.board.player_checkers_coords(self.player2):
             self.winner = self.player1
-        elif not self.board.player_chekers_coords(self.player1):
+        elif not self.board.player_checkers_coords(self.player1):
             self.winner = self.player2
         elif not self.board.possible_moves_for_player(self.turner):
             self.winner = self.get_waiter()
@@ -269,6 +270,10 @@ class CheckersGame(db.Model):
     def requester_is_turner(self):
         logging.info("requester is turner " + str(self.requester.key() == self.turner.key()))
         return self.requester.key() == self.turner.key()
+        
+    def requester_is_winner(self):
+        if not self.winner: return False
+        return self.winner.key() == self.requester.key()
 
     def change_turner(self):
         if self.turner.key() == self.player1.key():
@@ -325,7 +330,8 @@ class CheckersGame(db.Model):
                     response_board[x][y] = "1%s"%response_board[x][y][1][0]
                 else:
                     response_board[x][y] = "2%s"%response_board[x][y][1][0]
-        return {'board': response_board, 'your_turn': self.requester_is_turner(), 'status': self.status()}
+        return {'board': response_board, 'your_turn': self.requester_is_turner(), 'status': self.status(), 
+                'you_win': self.requester_is_winner()}
 
     def status(self):
         if self.is_over : return 'over'

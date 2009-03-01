@@ -86,8 +86,9 @@ class CheckersGameTestCase(unittest.TestCase):
                 ]
         self.game.board.reinit_from_test_board(board)
         
-        self.assertFalse(list_diff(self.game.board.possible_moves_for_player(self.player1), [[5,3,[4,2]]]))
-        self.assertFalse(list_diff(self.game.board.possible_moves_for_player(self.player2), [[2,0,[3,1]]]))
+        # Blocking disabled to sync with js version
+        #self.assertFalse(list_diff(self.game.board.possible_moves_for_player(self.player1), [[5,3,[4,2]]]))
+        #self.assertFalse(list_diff(self.game.board.possible_moves_for_player(self.player2), [[2,0,[3,1]]]))
         
         self.game.board.move([3,1], [5,3])
         self.game.check_over()

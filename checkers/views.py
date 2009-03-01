@@ -37,10 +37,11 @@ def new_game(request):
 
 def action(request):
     player = Player.gql("WHERE imei = :1", request.GET['imei']).get()
-    player.game_requested = datetime.now()
+    
      
     if not player:
         return HttpResponseRedirect("/api/newgame/?imei=%s"%request.GET['imei'])
+    player.game_requested = datetime.now()
         
     game = player.game
 
@@ -52,7 +53,7 @@ def action(request):
     if request.GET.has_key('queue'):
         game.apply_turn_queue(request.GET['queue'])
 
-    game.check_if_over()
+    game.check_over()
 
     if game.is_over: player.game = None
 

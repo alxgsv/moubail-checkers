@@ -71,7 +71,14 @@ function toss_online() {
 }
 
 function process_server_response(response){
-   if (response.status == "onair"){
+   if (response.status == "over"){ 
+        if(response.you_win){
+           disp.innerHTML = "Congratulations! You are the winner!"; 
+        }else{
+           disp.innerHTML = "You are defeated. Don't give up :-)";  
+        }
+        moved = true;
+   }else if (response.status == "onair"){
   		update_board_from_response(response.board);
         tossed = response.your_turn;       
         if(response.your_turn){
