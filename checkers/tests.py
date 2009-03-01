@@ -73,6 +73,22 @@ class CheckersGameTestCase(unittest.TestCase):
         self.assertFalse(list_diff(self.game.board.possible_moves_for_checker([6,0]), []))
         self.assertFalse(list_diff(self.game.board.possible_moves_for_checker([1,7]), []))
     
+    def testEatBlocking(self):
+                # 01234567
+        board = ["        ",#0
+                 "   f    ",#1
+                 "    s   ",#2
+                 "        ",#3
+                 "        ",#4
+                 "        ",#5
+                 "        ",#6
+                 "        ",#7
+                ]
+        self.game.board.reinit_from_test_board(board)
+        
+        self.assertFalse(list_diff(self.game.board.possible_moves_for_player(self.player1), [[5,3,[4,2]]]))
+        self.assertFalse(list_diff(self.game.board.possible_moves_for_player(self.player2), [[2,0,[3,1]]]))
+    
     def testMakingKings(self):
                 # 01234567
         board = ["        ",#0
@@ -90,5 +106,7 @@ class CheckersGameTestCase(unittest.TestCase):
         self.game.board.move([0,6], [1,7])
         self.assertTrue(self.game.board.checkers[0][0].is_king())
         self.assertTrue(self.game.board.checkers[1][7].is_king())
+        
+     
         
        

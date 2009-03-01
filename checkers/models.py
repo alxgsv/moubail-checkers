@@ -142,7 +142,23 @@ class Board:
                 
     def possible_moves_for_player(self, player):
         moves = []
+        for x in range(len(self.checkers)):
+            for y in range(len(self.checkers[x])):
+                checker = self.checkers[x][y]
+                
+                if not checker or checker.player.key() != player.key(): continue
+                
+                moves += self.possible_moves_for_checker([x,y])
+        eaten_moves = filter(lambda x: x[2] != None, moves)
         
+        if len(eaten_moves) > 0:
+            return eaten_moves
+        
+        return moves
+        
+                
+                
+                
     def cell(self, coords):
         return 0 <= coords[0] < len(self.checkers) and \
                0 <= coords[1] < len(self.checkers[0]) and \
