@@ -9,12 +9,13 @@ from django.utils import simplejson as sj
 class Player(db.Expando):
     imei = db.StringProperty()
     score = db.IntegerProperty()
-       
+    game = db.ReferenceProperty()
+    
     created_at = db.DateTimeProperty(auto_now_add=True)
     game_requested = db.DateTimeProperty()
     
-    def game(self):
-        return self.checkersgames1.get() or self.checkersgames2.get()
+    #def game(self):
+    #    return self.checkersgames1.get() or self.checkersgames2.get()
 
 
 class Checker:
@@ -212,26 +213,50 @@ class Board:
     def __call__(self, x, y):
         return self.checkers[x][y]
     
-class Game:
-    pass
-
-class CheckersGame(db.Model, Game):
+class CheckersGame(db.Model):
     player1 = db.ReferenceProperty(Player, collection_name="checkersgames1")
     player2 = db.ReferenceProperty(Player, collection_name="checkersgames2")
+    winner = db.ReferenceProperty(Player, collection_name="checkersgames_winner")
+    
     state = db.TextProperty()
     turner = db.ReferenceProperty(Player, collection_name="checkersgames_turner")
+    is_over = db.BooleanProperty(default=False)
     
     created_at = db.DateTimeProperty(auto_now_add=True)
     last_update_at = db.DateTimeProperty(auto_now=True)
     last_turn_at = db.DateTimeProperty()
     timeout = db.IntegerProperty()
     
+    @classmethod
+    def create(cls, *a, **k):
+        game = CheckersGame(*a, **k)
+        game.put()
+        game.player1.game = game
+        game.player2.game = game
+        return game        
+    
+    def get_waiter(self):
+        if self.turner.key() == self.player1.key(): return self.player2
+        return self.player1
+    
     def for_player1(self):
         return self.requester and self.requester.key() == self.player1.key()
     
     def for_player2(self):
         return self.requester and self.requester.key() == self.player2.key()
-    
+        
+    def check_over(self):
+        if self.is_over: return True
+        
+        if len(self.board.player1_chekers) == 0:
+            self.winner = self.player1
+        elif len(self.board.player2_chekers) == 0:
+            self.winner = self.player2
+        elif not self.board.possible_moves_for_player(self.turner):
+            self.winner = self.get_waiter()
+        self.is_over = bool(self.winner)
+        return self.is_over
+        
     def requester_is_turner(self):
         logging.info("requester is turner " + str(self.requester.key() == self.turner.key()))
         return self.requester.key() == self.turner.key()
@@ -267,7 +292,7 @@ class CheckersGame(db.Model, Game):
     
     def apply_turn_queue(self, turnqueue):
         logging.info("get queue %s"%turnqueue)
-        if not self.requester_is_turner(): return False            
+        if not self.requester_is_turner() or self.is_over: return False            
         logging.info("this queue is accepable")
         while turnqueue:
             turn = turnqueue[:4]

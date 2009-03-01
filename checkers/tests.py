@@ -10,12 +10,12 @@ class CheckersGameTestCase(unittest.TestCase):
         self.player1.put()
         self.player2 = Player(imei="imei2")
         self.player2.put()
-        self.game = CheckersGame(player1 = self.player1, player2 = self.player2)
+        self.game = CheckersGame.create(player1 = self.player1, player2 = self.player2)
         self.game.put()
         self.game.setup(self.player1)
         
     def testFindingGame(self):        
-        self.assertEquals(self.game.key(), self.player1.game().key())
+        self.assertEquals(self.game.key(), self.player1.game.key())
         
     def testStartBoard(self):
         board = Board(self.player1, self.player2)
@@ -73,7 +73,7 @@ class CheckersGameTestCase(unittest.TestCase):
         self.assertFalse(list_diff(self.game.board.possible_moves_for_checker([6,0]), []))
         self.assertFalse(list_diff(self.game.board.possible_moves_for_checker([1,7]), []))
     
-    def testEatBlocking(self):
+    def testEatBlockingAndGameover(self):
                 # 01234567
         board = ["        ",#0
                  "   f    ",#1

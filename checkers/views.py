@@ -24,26 +24,38 @@ def new_game(request):
     opponents = filter(lambda x: x.imei != request.GET['imei'], opponents)
     if opponents:
         opponent = opponents[0]
-        player.game_requested = None
-        opponent.game_requested = None
-        game = CheckersGame(player1 = opponent, player2 = player)
+        player.game_requested, opponent.game_requested = None, None
+        game = CheckersGame.create(player1 = opponent, player2 = player)
+        player.game, opponent.game = game, game
         game.setup()
+        game.put()
+        
         player.put()
         opponent.put()
-        game.put()
         return HttpResponseRedirect("/api/action/?imei=%s"%request.GET['imei'])
     return HttpResponse(sj.dumps({'status' : 'waiting'}))
 
 def action(request):
     player = Player.gql("WHERE imei = :1", request.GET['imei']).get()
+    player.game_requested = datetime.now()
      
     if not player:
         return HttpResponseRedirect("/api/newgame/?imei=%s"%request.GET['imei'])
-    game = player.game()
+        
+    game = player.game
+
     if not game:
         return HttpResponseRedirect("/api/newgame/?imei=%s"%request.GET['imei'])
+
     game.setup(player)
+
     if request.GET.has_key('queue'):
         game.apply_turn_queue(request.GET['queue'])
+
+    game.check_if_over()
+
+    if game.is_over: player.game = None
+
     game.save()
+    player.put()
     return HttpResponse(sj.dumps(game.to_response()))
