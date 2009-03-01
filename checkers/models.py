@@ -129,7 +129,8 @@ class Board:
     
     def move(self, fr, to):
         checker = self.checkers[fr[0]][fr[1]]
-        moves = self.possible_moves_for_checker(fr)
+        if not checker: return []
+        moves = self.possible_moves_for_player(checker.player)
         for move in moves:
             if to == move[:2]:
                 logging.warn("Moving %s from %s to %s"%(checker, fr, to))
@@ -154,8 +155,7 @@ class Board:
         if len(eaten_moves) > 0:
             return eaten_moves
         
-        return moves
-        
+        return moves      
                 
                 
                 
