@@ -70,7 +70,16 @@ class Board:
                 for player in [player1, player2]:
                     if board_list[x][y] and player.key().__str__() == board_list[x][y][0]:
                         self.checkers[x][y] = Checker(player, board_list[x][y][1])
-
+                        
+    def player_checkers_coords(self, player):
+        player_checkers_coords = []
+        for x in range(len(self.checkers)):
+            for y in range(len(self.checkers[x])):
+                if self.checkers[x][y] and self.checkers[x][y].player.key() == player.key():
+                    player_checkers_coords.append([x,y])
+                    
+        return player_checkers_coords
+        
     def reinit_from_test_board(self, t_board):
         t_board = [[s for s in line] for line in t_board]
         for x in range(len(t_board)):
@@ -248,9 +257,9 @@ class CheckersGame(db.Model):
     def check_over(self):
         if self.is_over: return True
         
-        if len(self.board.player1_chekers) == 0:
+        if not self.board.player_checkers_coords(self.player2):
             self.winner = self.player1
-        elif len(self.board.player2_chekers) == 0:
+        elif not self.board.player_chekers_coords(self.player1):
             self.winner = self.player2
         elif not self.board.possible_moves_for_player(self.turner):
             self.winner = self.get_waiter()
@@ -316,6 +325,11 @@ class CheckersGame(db.Model):
                     response_board[x][y] = "1%s"%response_board[x][y][1][0]
                 else:
                     response_board[x][y] = "2%s"%response_board[x][y][1][0]
-        return {'board': response_board, 'your_turn': self.requester_is_turner(), 'status':'onair'}
+        return {'board': response_board, 'your_turn': self.requester_is_turner(), 'status': self.status()}
+
+    def status(self):
+        if self.is_over : return 'over'
+        return 'onair'
+        
         
     
