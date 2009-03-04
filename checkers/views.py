@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from django.template.loader import render_to_string
 from django.shortcuts import render_to_response
 from django.http import HttpResponseRedirect, HttpResponse
+from django.conf import settings
 
 from django.utils import simplejson as sj
 
@@ -60,3 +61,4 @@ def action(request):
     game.save()
     player.put()
     return HttpResponse(sj.dumps(game.to_response()))
+  

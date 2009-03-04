@@ -14,6 +14,8 @@
 
 # Django settings for google-app-engine-django project.
 
+here = lambda x: os.path.join(os.path.abspath(os.path.dirname(__file__)), *x)
+
 import os
 
 DEBUG = True
@@ -103,3 +105,5 @@ INSTALLED_APPS = (
 #    'django.contrib.sessions',
 #    'django.contrib.sites',
 )
+
+CHECKERS_PATH = here(('static', 'checkers'))  

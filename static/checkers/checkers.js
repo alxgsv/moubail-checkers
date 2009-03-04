@@ -16,8 +16,24 @@ var getimgall = getimg.getElementsByTagName('img');
 
 // Turn logger to send to server
 ONLINE_GAME = true;
-IMEI = prompt();
+IMEI = false;
 TURN_QUEUE = [];
+
+// IMEI
+
+function getIMEI(){
+    try {
+        var result = systemServiceObj.ISysInfo.GetInfo({Entity: "Device", Key: "IMEI"});
+        IMEI = hex_sha1(result.ReturnValue.StringData);
+    }
+	catch (ex) 
+	{
+        var a = new Date();
+        IMEI = a.toString() + a.getMilliseconds();
+        if(typeof(DEV) != "undefined" && DEV){IMEI = prompt();}
+    }
+
+}
 
 // NETWORK FUNCTIONS
 function query_to_param(){	
@@ -57,6 +73,7 @@ function touch_server(){
 }
 
 function toss_online() {
+  if(!IMEI){getIMEI();}
   if (tossed) {
     document.info.bttn.value = "Who goes first?";
     reset();
