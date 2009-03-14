@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>DisplayName</key>
-	<string>Checkers</string>
+	<string>Checkers Online</string>
 	<key>Identifier</key>
-	<string>com.moubail.checkers.widget</string>
+	<string>com.moubail.checkers_online.widget</string>
 	<key>Version</key>
 	<string>1.02</string>
 	<key>AllowNetworkAccess</key>

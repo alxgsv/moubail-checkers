@@ -1,3 +1,4 @@
+alert("load");
 game_over = false;
 player_go = false;
 player_picked = false;
@@ -19,20 +20,24 @@ ONLINE_GAME = true;
 IMEI = false;
 TURN_QUEUE = [];
 
+function dev_mode(){
+  return typeof(DEV) != "undefined" && DEV ;
+}
+
 // IMEI
 
 function getIMEI(){
     try {
+        systemServiceObj = device.getServiceObject("Service.SysInfo", "ISysInfo");
         var result = systemServiceObj.ISysInfo.GetInfo({Entity: "Device", Key: "IMEI"});
         IMEI = hex_sha1(result.ReturnValue.StringData);
     }
 	catch (ex) 
 	{
         var a = new Date();
-        IMEI = a.toString() + a.getMilliseconds();
-        if(typeof(DEV) != "undefined" && DEV){IMEI = prompt();}
+        IMEI = a.valueOf();
+        if(dev_mode()){IMEI = prompt();}
     }
-
 }
 
 // NETWORK FUNCTIONS
@@ -80,9 +85,12 @@ function toss_online() {
     tossed = false;
     return false;
   } else {
+    alert(get_url('action'));  
     $.getJSON(get_url('action'), {imei:IMEI}, function(data){
+        alert(data);
         process_server_response(data);
 	});
+	alert("sent");
     
   }
 }

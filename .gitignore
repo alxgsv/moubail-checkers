@@ -1,5 +1,6 @@
 django
 appengine_django
+static/checkers.*
 .google_appengine
 .svn
 .project

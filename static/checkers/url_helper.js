@@ -1,12 +1,16 @@
 URLS = {
-	turn:    ["http://moubail-chekers.appspot.com/api/turn/", "/api/turn/"],
-    refresh: ["http://moubail-chekers.appspot.com/api/refresh/", "/api/refresh/"],
-    action:  ["http://moubail-chekers.appspot.com/api/action/", "/api/action/"]
+	turn:    ["http://moubail-checkers.appspot.com/api/turn/", "/api/turn/"],
+    refresh: ["http://moubail-checkers.appspot.com/api/refresh/", "/api/refresh/"],
+    action:  ["http://moubail-checkers.appspot.com/api/action/", "/api/action/"]
 };
 
 function get_url(page){
-  if ($.browser.safari || $.browser.opera || $.browser.msie || $.browser.mozilla) {
-     return URLS[page][1];
+  var url = "";
+  try{
+    device;
+    url = URLS[page][0];    
+  }catch(e){
+    url = URLS[page][1];    
   }
-  return URLS[page][0];
+  return url;
 }

@@ -1,5 +1,5 @@
 import copy, pprint, random, logging, pprint
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from appengine_django.models import BaseModel
 from google.appengine.ext import db
@@ -13,6 +13,7 @@ class Player(db.Expando):
     
     created_at = db.DateTimeProperty(auto_now_add=True)
     game_requested = db.DateTimeProperty()
+    alive_at = db.DateTimeProperty(auto_now=True)
     
     #def game(self):
     #    return self.checkersgames1.get() or self.checkersgames2.get()
@@ -141,15 +142,18 @@ class Board:
         checker = self.checkers[fr[0]][fr[1]]
         if not checker: return []
         moves = self.possible_moves_for_player(checker.player)
+
         for move in moves:
-            if to == move[:2]:
+            if [fr, to] == move[:2]:
                 logging.warn("Moving %s from %s to %s"%(checker, fr, to))
                 if move[2]:
                     eaten = move[2]
+                    logging.info("Eating %s"%move[2])
                     self.checkers[eaten[0]][eaten[1]] = None 
                 self.checkers[fr[0]][fr[1]] = None
                 self.checkers[to[0]][to[1]] = checker
                 self.update_checker_kingity(to)
+                break
                 
     def possible_moves_for_player(self, player):
         moves = []
@@ -198,7 +202,7 @@ class Board:
             
             # If peaceful move is acceptable - adding it to possible moves
             if new_cell == None: 
-                moves.append(new_coords + [None])
+                moves.append([coords, new_coords, None])
                 continue   
             
             # In other case we've got a preventer
@@ -212,7 +216,7 @@ class Board:
             new_cell = self.cell(eating_coords)
             
             if new_cell == False: continue
-            if new_cell == None: moves.append(eating_coords + [new_coords])
+            if new_cell == None: moves.append([coords, eating_coords, new_coords])
 
         return moves
                 
@@ -236,7 +240,9 @@ class CheckersGame(db.Model):
     last_update_at = db.DateTimeProperty(auto_now=True)
     last_turn_at = db.DateTimeProperty()
     timeout = db.IntegerProperty()
-    
+
+    TURN_TIME = timedelta(0, 120)
+
     @classmethod
     def create(cls, *a, **k):
         game = CheckersGame(*a, **k)
@@ -244,6 +250,9 @@ class CheckersGame(db.Model):
         game.player1.game = game
         game.player2.game = game
         return game        
+        
+    def player_to_number(self, player):
+        return ((player.key() == self.player1.key()) and 1) or 2
     
     def get_waiter(self):
         if self.turner.key() == self.player1.key(): return self.player2
@@ -259,12 +268,19 @@ class CheckersGame(db.Model):
         if self.is_over: return True
         
         if not self.board.player_checkers_coords(self.player2):
+            logging.info("no checkers for player 2")
             self.winner = self.player1
         elif not self.board.player_checkers_coords(self.player1):
+            logging.info("no checkers for player 1")
             self.winner = self.player2
         elif not self.board.possible_moves_for_player(self.turner):
+            logging.info("no checkers for turner (player %s)"%self.player_to_number(self.turner))
             self.winner = self.get_waiter()
-        self.is_over = bool(self.winner)
+        elif (datetime.now() - self.turner.alive_at) > CheckersGame.TURN_TIME:
+            logging.info("gameover on timeout by player %s"%self.player_to_number(self.turner))            
+            self.winner = self.get_waiter()
+                        
+        self.is_over = bool(self.winner)        
         return self.is_over
         
     def requester_is_turner(self):
@@ -296,10 +312,12 @@ class CheckersGame(db.Model):
     def pack(self):
         dump = self.board.dump_to_list()   
         self.state = sj.dumps({'board' : dump})
+        logging.info("Game packed")
     
     def save(self):
         self.pack()
         self.put()
+        logging.info("Game saved")
     
     def unpack(self):
         self.board = Board(self.player1, self.player2, sj.loads(self.state)["board"])    

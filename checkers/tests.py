@@ -50,10 +50,10 @@ class CheckersGameTestCase(unittest.TestCase):
                 ]
         self.game.board.reinit_from_test_board(board)
         
-        self.assertFalse(list_diff(self.game.board.possible_moves_for_checker([2,4]), [[1, 5, None], [3, 5, None]]))
-        self.assertFalse(list_diff(self.game.board.possible_moves_for_checker([1,7]), [[0, 6, None], [2,6, None]]))
-        self.assertFalse(list_diff(self.game.board.possible_moves_for_checker([4,0]), [[3, 1, None], [5,1, None]]))
-        self.assertFalse(list_diff(self.game.board.possible_moves_for_checker([7,3]), [[6, 2, None], [6,4, None]]))
+        self.assertFalse(list_diff(self.game.board.possible_moves_for_checker([2,4]), [[[2,4], [1, 5], None], [[2,4], [3, 5], None]]))
+        self.assertFalse(list_diff(self.game.board.possible_moves_for_checker([1,7]), [[[1,7], [0, 6], None], [[1,7], [2,6], None]]))
+        self.assertFalse(list_diff(self.game.board.possible_moves_for_checker([4,0]), [[[4,0], [3, 1], None], [[4,0], [5,1], None]]))
+        self.assertFalse(list_diff(self.game.board.possible_moves_for_checker([7,3]), [[[7,3], [6, 2], None], [[7,3], [6,4], None]]))
        
     def testPossibleEatMoves(self):
                 # 01234567
@@ -68,8 +68,8 @@ class CheckersGameTestCase(unittest.TestCase):
                 ]
         self.game.board.reinit_from_test_board(board)
 
-        self.assertFalse(list_diff(self.game.board.possible_moves_for_checker([0,0]), [[2, 2, [1,1]]]))
-        self.assertFalse(list_diff(self.game.board.possible_moves_for_checker([7,5]), [[5, 3, [6,4]], [5, 7, [6,6]]]))
+        self.assertFalse(list_diff(self.game.board.possible_moves_for_checker([0,0]), [[[0,0], [2, 2], [1,1]]]))
+        self.assertFalse(list_diff(self.game.board.possible_moves_for_checker([7,5]), [[[7,5], [5, 3], [6,4]], [[7,5], [5, 7], [6,6]]]))
         self.assertFalse(list_diff(self.game.board.possible_moves_for_checker([6,0]), []))
         self.assertFalse(list_diff(self.game.board.possible_moves_for_checker([1,7]), []))
     
@@ -112,6 +112,22 @@ class CheckersGameTestCase(unittest.TestCase):
         self.game.board.move([0,6], [1,7])
         self.assertTrue(self.game.board.checkers[0][0].is_king())
         self.assertTrue(self.game.board.checkers[1][7].is_king())
+        
+    def testSamsonovExample140309_1(self):
+                # 01234567
+        board = ["f f f f ",#0
+                 "   f f  ",#1
+                 "f s f   ",#2
+                 "   f f s",#3
+                 "  s   s ",#4
+                 "   s   s",#5
+                 "  s s   ",#6
+                 " s s s s",#7
+                ]
+        self.game.board.reinit_from_test_board(board)
+        
+        self.game.board.move([3,1], [1,3])
+        self.assertTrue(self.game.board.checkers[2][2] == None)
         
      
         
