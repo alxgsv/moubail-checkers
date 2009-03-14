@@ -92,6 +92,7 @@ function toss_online() {
 
 function process_server_response(response){
    if (response.status == "over"){ 
+        update_board_from_response(response.board);
         if(response.you_win){
            disp.innerHTML = "Congratulations! You are the winner!"; 
         }else{
