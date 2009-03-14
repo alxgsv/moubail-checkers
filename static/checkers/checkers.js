@@ -11,6 +11,7 @@ jump_running = false;
 var cntr2;
 var cntr2a;
 var disp = document.getElementById('disp');
+var bttn = $('#bttn');
 var getimg = document.getElementById('game-table');
 var getimgall = getimg.getElementsByTagName('img');
 
@@ -97,7 +98,9 @@ function process_server_response(response){
            disp.innerHTML = "You are defeated. Don't give up :-)";  
         }
         moved = true;
+        bttn.show();
    }else if (response.status == "onair"){
+        bttn.hide();
   		update_board_from_response(response.board);
         tossed = response.your_turn;       
         if(response.your_turn){
@@ -109,6 +112,7 @@ function process_server_response(response){
            setTimeout('touch_server()', 5000);
         }     
    }else if(response.status == "waiting"){
+        bttn.hide();
         moved = true;
         disp.innerHTML = "Searching for the opponent";
         setTimeout('touch_server()', 5000);
