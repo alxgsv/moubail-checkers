@@ -1,4 +1,3 @@
-alert("load");
 game_over = false;
 player_go = false;
 player_picked = false;
@@ -52,7 +51,6 @@ function send_queue(){
 		TURN_QUEUE = [];
 		process_server_response(data);
 	});
-	console.log("sent");
 }
 
 function update_board_from_response(response_board){
@@ -85,13 +83,9 @@ function toss_online() {
     tossed = false;
     return false;
   } else {
-    alert(get_url('action'));  
     $.getJSON(get_url('action'), {imei:IMEI}, function(data){
-        alert(data);
         process_server_response(data);
 	});
-	alert("sent");
-    
   }
 }
 

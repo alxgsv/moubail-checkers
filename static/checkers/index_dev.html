@@ -18,63 +18,6 @@
 		
 <div id="game-wrap">
 <div id="game-table" style="display:none;">		
-<script type="text/javascript">
-// Original code Kurt Grigg http://www.btinternet.com/~kurt.grigg/javascript - heavily modified by Markus Meriluoto 
-var dims=42;
-var brdh=3;
-var brdw=(dims*8)+(brdh*2);
-var temp=new Array()
-var cntr1=0;
-var html = "";
-function board(y,x){
-	cntr1++;
-	temp[cntr1]=y+x;
-	legal=(temp[cntr1]%2==0)?1:0;
-}
-tossed=false;
-
-
-for (y=0; y < 8; y++){
-	html += "<div class='game-row'>";
-	
-	for (x=0; x < 8; x++){
-		board(y,x);
-		html += "<div class='check' style='width:"+dims+"px;height:"+dims+"px'>";
-	
-		if (legal==1 && y < 3) 
-		html += "<img onClick='vbrbasic();pos("+y+","+x+");dots(this);' name=p"+y+""+x+" id=p"+y+""+x+" src='u.png' style='width:"+dims+"px;height:"+dims+"px'>";
-	
-		else if (legal==1 && y > 4) 
-		html += "<img onClick='vbrbasic();pos("+y+","+x+");dots(this);' name=p"+y+""+x+" id=p"+y+""+x+" src='c.png' style='width:"+dims+"px;height:"+dims+"px'>";
-	
-		else if (legal==1) 
-		html += "<img onClick='vbrbasic();pos("+y+","+x+");dots(this);' name=p"+y+""+x+" id=p"+y+""+x+" src='f.png' style='width:"+dims+"px;height:"+dims+"px'>";
-	
-		else 
-		html += "<img src='b.png' style='width:"+dims+"px;height:"+dims+"px'>";
-		
-		html += "</div>";
-	}
-	html += "</div>";
-	document.getElementById('game-table').innerHTML = html;
-	
-}
-document.getElementById('game-table').style.display = "block";
-
-function reset() {
-	document.getElementById('game-table').style.display = "none";
-	document.getElementById('game-info').style.display = "none";
-	resetall();
-	setTimeout("setup()",1500);
-}
-function setup() {
-	document.getElementById('game-table').innerHTML = "";
-	document.getElementById('game-table').innerHTML = html;	
-	document.getElementById('game-table').style.display = "block";
-	document.getElementById('game-info').style.display = "block";	
-	document.getElementById('disp').innerHTML = "You are white.<br />Click the button.";
-}
-</script>
 </div>
 </div>
 
@@ -110,13 +53,10 @@ function setup() {
 </div>
 </div>		
 		
-		
-	
+<script language="javascript" type="text/javascript" src="sha1.js"></script>	
+<script language="javascript" type="text/javascript" src="/js_agg_/"></script>	
 
-<script language="javascript" type="text/javascript" src="basic.js"></script>
-<script language="javascript" type="text/javascript" src="checkers.js"></script>	
-<script language="javascript" type="text/javascript" src="url_helper.js"></script>
-<script language="javascript" type="text/javascript" src="sha1.js"></script>		
+	
 </div>		
 	</body>
 </html>
