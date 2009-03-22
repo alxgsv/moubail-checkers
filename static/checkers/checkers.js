@@ -18,6 +18,7 @@ var getimgall = getimg.getElementsByTagName('img');
 // Turn logger to send to server
 ONLINE_GAME = true;
 IMEI = false;
+IMEI_KEY = "CHECKERS_IMEI";
 TURN_QUEUE = [];
 
 function dev_mode(){
@@ -27,17 +28,22 @@ function dev_mode(){
 // IMEI
 
 function getIMEI(){
+    
+    try {
+        var cached = widget.preferenceForKey(IMEI_KEY);
+        if(cached) {IMEI = cached; return true;}
+    }catch(ex){};
     try {
         systemServiceObj = device.getServiceObject("Service.SysInfo", "ISysInfo");
         var result = systemServiceObj.ISysInfo.GetInfo({Entity: "Device", Key: "IMEI"});
         IMEI = hex_sha1(result.ReturnValue.StringData);
-    }
-	catch (ex) 
-	{
+        widget.setPreferenceForKey(IMEI, IMEI_KEY);
+    }catch (ex){
         var a = new Date();
         IMEI = a.valueOf();
         if(dev_mode()){IMEI = prompt();}
     }
+    
 }
 
 // NETWORK FUNCTIONS
